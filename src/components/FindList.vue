@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { findListGetApi } from '@/api/find.ts'
 import { useFindCateStore } from '@/stores/modules/find.ts'
 import type { ArticleListItem } from '@/types/find'

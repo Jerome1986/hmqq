@@ -59,7 +59,7 @@ const clearSearchVal = () => {
 }
 
 // 搜索框值发生改变
-const handleChangeIpt = (event: { detail: { value: string } }) => {
+const handleChangeIpt = () => {
   isSearch.value = false
 }
 

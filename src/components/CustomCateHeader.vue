@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, nextTick } from 'vue'
+import { computed, ref } from 'vue'
 import type { FindCateItem } from '@/types/find'
 import { findCateGetApi } from '@/api/find.ts'
 import { useFindCateStore } from '@/stores/modules/find.ts'
@@ -21,8 +21,7 @@ const cateListGet = async () => {
       cateActiveIndex.value = 0
     } else {
       // 如果有当前分类，找到对应索引
-      const index = cateList.value.findIndex((item) => item._id === currentCateId)
-      cateActiveIndex.value = index
+      cateActiveIndex.value = cateList.value.findIndex((item) => item._id === currentCateId)
     }
     // 始终触发一次changeCate以确保数据加载
     emits('changeCate')
