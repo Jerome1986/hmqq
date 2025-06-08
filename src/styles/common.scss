@@ -1,0 +1,46 @@
+view,
+navigator,
+input,
+swiper-item
+scroll-view {
+  box-sizing: border-box;
+  font-family: "Microsoft YaHei", "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+page {
+  font-size: 32rpx;
+  background-color: $color-background;
+}
+
+button::after {
+  border: none;
+}
+
+swiper,
+scroll-view {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+image {
+  width: 100%;
+  height: 100%;
+  vertical-align: middle;
+}
+
+/* 文字溢出省略号 */
+@mixin text-ellipsis($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+

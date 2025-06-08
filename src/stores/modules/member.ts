@@ -1,16 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { UserInfoItem } from '@/types/userInfo'
 
 // 定义 Store
 export const useMemberStore = defineStore(
   'member',
   () => {
     // 会员信息
-    const profile = ref<any>()
+    const profile = ref<UserInfoItem>()
 
     // 保存会员信息，登录时使用
     const setProfile = (val: any) => {
-      profile.value = val
+      profile.value = { ...profile.value, ...val }
     }
 
     // 清理会员信息，退出时使用
@@ -27,6 +28,16 @@ export const useMemberStore = defineStore(
   },
   // TODO: 持久化
   {
-    persist: true,
+    persist: {
+      storage: {
+        getItem(key) {
+          // 兼容移动端浏览器
+          return uni.getStorageSync?.(key)
+        },
+        setItem(key, value) {
+          uni.setStorageSync?.(key, value)
+        },
+      },
+    },
   },
 )

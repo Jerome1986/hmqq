@@ -1,73 +1,121 @@
 {
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      // uni-ui 规则如下配置
+      "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+    }
+  },
   "pages": [
-    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
-      "path": "pages/index/index",
+      "path": "pages/home/home",
       "style": {
-        "navigationBarTitleText": "首页"
+        "navigationBarTitleText": "首页",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/my/my",
       "style": {
-        "navigationBarTitleText": "我的"
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/cart/cart",
+      "path": "pages/ai/ai",
       "style": {
-        "navigationBarTitleText": "购物车"
+        "navigationBarTitleText": "算鸟AI",
+        "navigationStyle": "custom"
       }
     },
     {
-      "path": "pages/category/category",
+      "path": "pages/find/find",
       "style": {
-        "navigationBarTitleText": "分类"
+        "navigationBarTitleText": "发现",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/login/login",
       "style": {
-        "navigationBarTitleText": "登录"
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/groupDetail/groupDetail",
+      "style": {
+        "navigationBarTitleText": "详情",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/discoveryDetail/discoveryDetail",
+      "style": {
+        "navigationBarTitleText": "种草详情",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "pages/searchDetail/searchDetail",
+      "style": {
+        "navigationBarTitleText": "搜索",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "subPackages",
+      "pages": [
+        {
+          "path": "setUserInfo/setUserInfo",
+          "style": {
+            "navigationBarTitleText": "个人信息",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": false
+          }
+        }
+      ]
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "",
-    "navigationBarBackgroundColor": "#F8F8F8",
+    "navigationBarTitleText": "哈米圈圈",
+    "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#F8F8F8"
   },
   // 设置 TabBar
   "tabBar": {
-    "color": "#333",
-    "selectedColor": "#27ba9b",
+    "color": "#9499a0",
+    "selectedColor": "#fb5383",
     "backgroundColor": "#fff",
-    "borderStyle": "white",
     "list": [
       {
         "text": "首页",
-        "pagePath": "pages/index/index",
-        "iconPath": "static/tabs/home_default.png",
-        "selectedIconPath": "static/tabs/home_selected.png"
+        "pagePath": "pages/home/home",
+        "iconPath": "static/tabs/home.png",
+        "selectedIconPath": "static/tabs/home_select.png"
       },
       {
-        "text": "分类",
-        "pagePath": "pages/category/category",
-        "iconPath": "static/tabs/category_default.png",
-        "selectedIconPath": "static/tabs/category_selected.png"
+        "text": "发现",
+        "pagePath": "pages/find/find",
+        "iconPath": "static/tabs/find.png",
+        "selectedIconPath": "static/tabs/find_select.png"
       },
       {
-        "text": "购物车",
-        "pagePath": "pages/cart/cart",
-        "iconPath": "static/tabs/cart_default.png",
-        "selectedIconPath": "static/tabs/cart_selected.png"
+        "text": "算鸟AI",
+        "pagePath": "pages/ai/ai",
+        "iconPath": "static/tabs/ai.png",
+        "selectedIconPath": "static/tabs/ai_select.png"
       },
       {
         "text": "我的",
         "pagePath": "pages/my/my",
-        "iconPath": "static/tabs/user_default.png",
-        "selectedIconPath": "static/tabs/user_selected.png"
+        "iconPath": "static/tabs/my.png",
+        "selectedIconPath": "static/tabs/my_select.png"
       }
     ]
   }
