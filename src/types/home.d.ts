@@ -56,4 +56,6 @@ export type GroupBuyItem = {
   love: number
   /** 商家名称 */
   shop_name: string
+  /** 是否被收藏 */
+  isLoved: boolean
 }

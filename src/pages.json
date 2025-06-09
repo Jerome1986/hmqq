@@ -77,6 +77,22 @@
             "navigationStyle": "custom",
             "enablePullDownRefresh": false
           }
+        },
+        {
+          "path": "collect/collect",
+          "style": {
+            "navigationBarTitleText": "我的收藏",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "shopJoin/shopJoin",
+          "style": {
+            "navigationBarTitleText": "商家入驻",
+            "navigationStyle": "custom",
+            "enablePullDownRefresh": false
+          }
         }
       ]
     }

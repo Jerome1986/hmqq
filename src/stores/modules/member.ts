@@ -7,7 +7,15 @@ export const useMemberStore = defineStore(
   'member',
   () => {
     // 会员信息
-    const profile = ref<UserInfoItem>()
+    const profile = ref<UserInfoItem>({
+      _id: '',
+      user_avatar: '/static/images/avatar.png',
+      nickname: '点击登录',
+      role: ['user'],
+      birthday: '',
+      gender: '',
+      isLogin: false,
+    })
 
     // 保存会员信息，登录时使用
     const setProfile = (val: any) => {
@@ -16,7 +24,15 @@ export const useMemberStore = defineStore(
 
     // 清理会员信息，退出时使用
     const clearProfile = () => {
-      profile.value = undefined
+      profile.value = {
+        _id: '',
+        user_avatar: '/static/images/avatar.png',
+        nickname: '点击登录',
+        role: ['user'],
+        birthday: '',
+        gender: '',
+        isLogin: false,
+      }
     }
 
     // 记得 return

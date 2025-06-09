@@ -27,6 +27,7 @@ const login = () => {
 const handleLogout = () => {
   userInfo.value.isLogin = false
   menberStore.clearProfile()
+  console.log(menberStore.profile)
 }
 
 // 处理我的页面所有事件
@@ -47,10 +48,31 @@ const handleManageAffairs = (val: string) => {
         url: '/subPackages/setUserInfo/setUserInfo',
       })
       break
+    case '订单信息':
+      console.log('订单信息')
+      break
+    case '收藏团购':
+      uni.navigateTo({
+        url: '/subPackages/collect/collect',
+      })
+      break
+    case '券卡信息':
+      console.log('券卡信息')
+      break
+    case '客服信息':
+      console.log('客服信息')
+      break
     case '后台管理':
       console.log('后台管理')
       break
   }
+}
+
+// 处理商家入驻
+const handleShopJoin = () => {
+  uni.navigateTo({
+    url: '/subPackages/shopJoin/shopJoin',
+  })
 }
 </script>
 
@@ -70,7 +92,7 @@ const handleManageAffairs = (val: string) => {
 
     <!-- 商家入驻和达人申请 -->
     <view class="apply-section">
-      <view class="apply-item business">
+      <view class="apply-item business" @tap="handleShopJoin">
         <image src="/static/images/shopJoin.png" mode="widthFix"></image>
         <text>商家入驻</text>
       </view>
@@ -82,19 +104,19 @@ const handleManageAffairs = (val: string) => {
 
     <!-- 订单信息 -->
     <view class="order-section">
-      <view class="order-item">
+      <view class="order-item" @tap="handleManageAffairs('订单信息')">
         <text class="iconfont icon-dingdanxinxi"></text>
         <text>订单信息</text>
       </view>
-      <view class="order-item">
+      <view class="order-item" @tap="handleManageAffairs('收藏团购')">
         <text class="iconfont icon-shoucangtuangou"></text>
         <text>收藏团购</text>
       </view>
-      <view class="order-item">
+      <view class="order-item" @tap="handleManageAffairs('券卡信息')">
         <text class="iconfont icon-quankaxinxi"></text>
         <text>券卡信息</text>
       </view>
-      <view class="order-item">
+      <view class="order-item" @tap="handleManageAffairs('客服信息')">
         <text class="iconfont icon-kefuxinxi"></text>
         <text>客服信息</text>
       </view>
@@ -117,7 +139,9 @@ const handleManageAffairs = (val: string) => {
 
     <!-- 退出和管理按钮 -->
     <view class="action-buttons">
-      <view class="logout-btn" @tap="handleLogout">退出登录</view>
+      <view class="logout-btn" @tap="handleLogout" v-if="menberStore.profile?.isLogin"
+        >退出登录</view
+      >
       <view
         v-if="menberStore.profile?.role[0] === 'admin'"
         class="admin-btn"

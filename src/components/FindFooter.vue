@@ -4,6 +4,7 @@ import type { GroupBuyItem } from '@/types/home'
 
 const props = defineProps({
   lookNum: Number,
+  commitNum: Number,
   groupData: {
     type: Object as () => GroupBuyItem | undefined,
     default: undefined,
@@ -84,7 +85,7 @@ const sendMessage = () => {
         <!--  评论数  -->
         <view class="icon-wrapper" @tap="handleCommit">
           <text class="iconfont icon-pinglun"></text>
-          <text class="count">5</text>
+          <text class="count">{{ props.commitNum || 0 }}</text>
         </view>
       </view>
     </view>

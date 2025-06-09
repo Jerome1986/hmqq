@@ -43,3 +43,11 @@ export type CommentResult = {
   /** 添加成功的评论id */
   comment_id: string
 }
+
+/** 添加到收藏列表结果类型 */
+export type LoveListResult = {
+  /** 是否添加成功 */
+  acknowledged: string
+  /** 返回的id */
+  insertedId: string
+}

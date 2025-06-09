@@ -34,3 +34,13 @@ export type ArticleListItem = {
   /** 产品链接 */
   pro_id: string
 }
+
+/** 发现 - 收藏列表数据类型 */
+export type LoveListItem = {
+  /** _id */
+  _id: string
+  /** 用户id */
+  user_id: string
+  /** 团购id */
+  group_id: string
+}

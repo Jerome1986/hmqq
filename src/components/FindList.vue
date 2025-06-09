@@ -1,15 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { findListGetApi } from '@/api/find.ts'
 import { useFindCateStore } from '@/stores/modules/find.ts'
-import type { ArticleListItem } from '@/types/find'
+import type { ArticleListItem, LoveListItem } from '@/types/find'
 import type { GroupBuyItem } from '@/types/home'
 import type { PageParams } from '@/types/global'
 import { articleViewsApi } from '@/api/articleDetail.ts'
+import { useMemberStore } from '@/stores'
+import { useLoveStore } from '@/stores/modules/love'
+import { userLoveListGetApi, groupDetailApi } from '@/api/groupDetail'
+
+// 接收父组件的数据
+const props = defineProps({
+  isCollect: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 // 定义store
 const findCateStore = useFindCateStore()
-
+const menberStore = useMemberStore()
+const loveStore = useLoveStore()
 // 分页参数
 const pageParams: Required<PageParams> = {
   page: 1,
@@ -44,27 +56,65 @@ const loadedImages = ref(new Set<string>())
 
 // 获取文章列表/团购列表
 const listDataGet = async (cate_id: string) => {
-  // 退出分页判断
-  if (finish.value === true) {
+  if (finish.value) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
 
   try {
+    // 如果是收藏列表，则获取收藏列表数据
+    if (props.isCollect) {
+      if (!menberStore.profile?._id) {
+        console.log('用户未登录')
+        uni.showToast({ icon: 'none', title: '请先登录' })
+        return
+      }
+
+      // 获取收藏列表
+      const loveListRes = await userLoveListGetApi(menberStore.profile._id)
+      const groupIds = loveListRes.data.map((item: LoveListItem) => item.group_id)
+
+      // 获取收藏的团购详情
+      const groupDetailsPromises = groupIds.map((id: string) => groupDetailApi(id))
+      const groupDetails = await Promise.all(groupDetailsPromises)
+
+      // 设置数据
+      isGroup.value = true
+      listData.value = groupDetails.map((res: { data: GroupBuyItem }) => ({
+        ...res.data,
+        isLoved: true,
+      }))
+
+      finish.value = true // 收藏列表不需要分页
+      return
+    }
+
+    // 正常列表获取逻辑
     const res = await findListGetApi(cate_id, pageParams)
-    // 数组追加 - 使用展开运算符
-    listData.value = [...listData.value, ...res.data.list]
     isGroup.value = res.data.isGroupBuy
 
-    // 分页条件 - 添加类型判断
+    // 如果是团购列表且已登录，处理收藏状态
+    if (isGroup.value && menberStore.profile?._id) {
+      await loveStore.initLoveList()
+      listData.value = [
+        ...listData.value,
+        ...res.data.list.map((item) => ({
+          ...item,
+          isLoved: loveStore.isLoved(item._id),
+        })),
+      ]
+    } else {
+      listData.value = [...listData.value, ...res.data.list]
+    }
+
+    // 分页条件
     if (res.data.totalPages && pageParams.page < res.data.totalPages) {
-      // 页码累加
       pageParams.page++
     } else {
       finish.value = true
     }
   } catch (error) {
     console.error('获取列表数据失败:', error)
-    throw error // 向上传递错误，让父组件处理loading状态
+    throw error
   }
 }
 
@@ -108,23 +158,48 @@ const handleDiscoveryGo = async (id: string) => {
 // 暴露方法
 defineExpose({
   resetData,
-  getListData: () => listDataGet(findCateStore.currentCate),
+  getListData: () => {
+    // 如果是收藏列表，不需要 cate_id
+    if (props.isCollect) {
+      return listDataGet('')
+    }
+    // 否则使用当前分类
+    return listDataGet(findCateStore.currentCate)
+  },
 })
 
 const handleImageLoad = (e: any, imageUrl: string) => {
-  // 如果这个图片已经记录过加载完成，就不再处理
-  if (loadedImages.value.has(imageUrl)) {
-    return
+  if (!loadedImages.value.has(imageUrl)) {
+    loadedImages.value.add(imageUrl)
   }
-
-  // 记录图片已加载
-  loadedImages.value.add(imageUrl)
-  console.log('新图片加载完成:', imageUrl)
 }
 
-const handleImageError = (e: any) => {
-  console.log('图片加载失败', e)
+// 处理点击收藏
+const handleLove = async (groupId: string) => {
+  // 调用 store 的方法来处理收藏操作
+  await loveStore.toggleLove(groupId)
 }
+
+// 监听收藏状态变化来更新UI
+watch(
+  () => loveStore.lastUpdated,
+  (newVal) => {
+    if (newVal) {
+      // 更新列表数据中的收藏状态和数量
+      listData.value = listData.value.map((item) => {
+        if ('coverImage' in item && item._id === newVal.groupId) {
+          return {
+            ...item,
+            isLoved: newVal.isLoved,
+            love: item.love + (newVal.isLoved ? 1 : -1),
+          }
+        }
+        return item
+      })
+    }
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -144,7 +219,6 @@ const handleImageError = (e: any) => {
               :src="(item as ArticleListItem).cover"
               mode="widthFix"
               @load="(e) => handleImageLoad(e, (item as ArticleListItem).cover)"
-              @error="handleImageError"
             ></image>
           </view>
           <view class="content">
@@ -180,7 +254,6 @@ const handleImageError = (e: any) => {
               :src="(item as ArticleListItem).cover"
               mode="widthFix"
               @load="(e) => handleImageLoad(e, (item as ArticleListItem).cover)"
-              @error="handleImageError"
             ></image>
           </view>
           <view class="content">
@@ -221,7 +294,6 @@ const handleImageError = (e: any) => {
               :src="(item as GroupBuyItem).coverImage"
               mode="widthFix"
               @load="(e) => handleImageLoad(e, (item as GroupBuyItem).coverImage)"
-              @error="handleImageError"
             ></image>
           </view>
           <view class="content">
@@ -241,8 +313,18 @@ const handleImageError = (e: any) => {
                 ></image>
                 <text class="nickname">{{ (item as GroupBuyItem).shop_name }}</text>
               </view>
-              <view class="looks">
-                <text class="iconfont icon-shoucang"></text>
+              <!--  已收藏   -->
+              <view
+                class="looks"
+                v-if="(item as GroupBuyItem).isLoved"
+                @tap.stop="handleLove(item._id)"
+              >
+                <text style="color: #fb5383" class="iconfont icon-tianchongxingxing"></text>
+                <text style="color: #fb5383">{{ (item as GroupBuyItem).love }}</text>
+              </view>
+              <!--  未收藏   -->
+              <view class="looks" v-else @tap.stop="handleLove(item._id)">
+                <text class="iconfont icon-miaobianxingxing"></text>
                 <text>{{ (item as GroupBuyItem).love }}</text>
               </view>
             </view>
@@ -263,7 +345,6 @@ const handleImageError = (e: any) => {
               :src="(item as GroupBuyItem).coverImage"
               mode="widthFix"
               @load="(e) => handleImageLoad(e, (item as GroupBuyItem).coverImage)"
-              @error="handleImageError"
             ></image>
           </view>
           <view class="content">
@@ -283,8 +364,18 @@ const handleImageError = (e: any) => {
                 ></image>
                 <text class="nickname">{{ (item as GroupBuyItem).shop_name }}</text>
               </view>
-              <view class="looks">
-                <text class="iconfont icon-shoucang"></text>
+              <!--  已收藏   -->
+              <view
+                class="looks"
+                v-if="(item as GroupBuyItem).isLoved"
+                @tap.stop="handleLove(item._id)"
+              >
+                <text style="color: #fb5383" class="iconfont icon-tianchongxingxing"></text>
+                <text style="color: #fb5383">{{ (item as GroupBuyItem).love }}</text>
+              </view>
+              <!--  未收藏   -->
+              <view class="looks" v-else @tap.stop="handleLove(item._id)">
+                <text class="iconfont icon-miaobianxingxing"></text>
                 <text>{{ (item as GroupBuyItem).love }}</text>
               </view>
             </view>

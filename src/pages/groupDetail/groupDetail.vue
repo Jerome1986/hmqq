@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import type { GroupBuyItem } from '@/types/home'
 import { groupDetailApi } from '@/api/groupDetail.ts'
+import { useLoveStore, useMemberStore } from '@/stores'
 
 const props = defineProps({
   id: {
@@ -10,24 +11,55 @@ const props = defineProps({
   },
 })
 
+// 使用 store
+const memberStore = useMemberStore()
+const loveStore = useLoveStore()
+
 // 获取团购数据
 const groupData = ref<GroupBuyItem>()
 // 轮播图当前页
 const currentIndex = ref(1)
+
+// 计算属性：是否已收藏
+const isLoved = computed(() => loveStore.isLoved(props.id))
+
 // 获取团购数据
 const groupDataGet = async (id: string) => {
   const res = await groupDetailApi(id)
-  groupData.value = res.data
+  groupData.value = {
+    ...res.data,
+    isLoved: loveStore.isLoved(id),
+  }
 }
 
-onMounted(() => {
-  groupDataGet(props.id)
-})
+// 处理收藏点击
+const handleLove = async () => {
+  if (!groupData.value) return
+
+  if (await loveStore.toggleLove(props.id)) {
+    const newIsLoved = loveStore.isLoved(props.id)
+    // 本地更新收藏状态和数量
+    groupData.value = {
+      ...groupData.value,
+      isLoved: newIsLoved,
+      love: groupData.value.love + (newIsLoved ? 1 : -1),
+    }
+  }
+}
 
 // 监听轮播图改变
 const handleSwiperChange = (e: any) => {
   currentIndex.value = e.detail.current + 1
 }
+
+// 组件挂载时初始化数据
+onMounted(async () => {
+  // 确保收藏列表已初始化
+  if (memberStore.profile?._id) {
+    await loveStore.initLoveList()
+  }
+  await groupDataGet(props.id)
+})
 </script>
 
 <template>
@@ -91,12 +123,20 @@ const handleSwiperChange = (e: any) => {
         <view class="useInfo">
           <view class="title">
             <view class="proName">{{ groupData.packageName }}</view>
-            <view style="display: flex; align-items: center">
+            <!-- 收藏按钮 -->
+            <view style="display: flex; align-items: center" @tap="handleLove">
               <text
-                class="iconfont icon-shoucang"
-                style="font-size: 24px; font-weight: 400; color: #adadad"
+                class="iconfont"
+                :class="groupData.isLoved ? 'icon-tianchongxingxing' : 'icon-shoucang'"
+                :style="{
+                  fontSize: '24px',
+                  fontWeight: '400',
+                  color: groupData.isLoved ? '#fb5383' : '#adadad',
+                }"
               ></text>
-              <text class="love">{{ groupData.love }}</text>
+              <text class="love" :style="{ color: groupData.isLoved ? '#fb5383' : '#adadad' }">
+                {{ groupData.love }}
+              </text>
             </view>
           </view>
           <view
@@ -354,13 +394,6 @@ const handleSwiperChange = (e: any) => {
           font-weight: 600;
           line-height: 48rpx;
           color: $color-title;
-
-          .love {
-            font-size: 32rpx;
-            line-height: 48rpx;
-            color: $color-text;
-            font-weight: 400;
-          }
         }
 
         /* 信息项 */

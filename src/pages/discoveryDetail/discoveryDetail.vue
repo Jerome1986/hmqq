@@ -80,10 +80,11 @@ const handleSendCommit = async (e: string) => {
 
 // 获取当前文章的评论列表
 const commentList = ref<CommentItem[]>([])
-
+const commitNum = ref(0)
 const commentsListGet = async (article_id: string) => {
   const res = await commentsGetApi(article_id)
   commentList.value = res.data
+  commitNum.value = res.data.length
 }
 
 // 挂载完毕
@@ -129,6 +130,7 @@ onMounted(async () => {
       @sendMessage="handleSendCommit"
       :look-num="articleData?.lookNum"
       :group-data="groupData"
+      :commitNum="commitNum"
     ></FindFooter>
   </view>
 </template>
