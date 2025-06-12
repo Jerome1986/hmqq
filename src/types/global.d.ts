@@ -51,3 +51,16 @@ export type LoveListResult = {
   /** 返回的id */
   insertedId: string
 }
+
+/** 申请入驻商铺结果类型 */
+export type ShopJoinResult = {
+  /** 添加成功后返回的结果 */
+  result: {
+    /** 是否添加成功 */
+    acknowledged: string
+    /** 返回的id */
+    insertedId: string
+  }
+  /** 用户申请的状态 */
+  isShopJoin: string
+}

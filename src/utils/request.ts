@@ -54,7 +54,7 @@ uni.addInterceptor('uploadFile', httpInterceptor)
  */
 type Data<T> = {
   /*状态码*/
-  code: string
+  code: string | number
   /*服务器返回提示消息*/
   message: string
   /*内容体*/
@@ -70,8 +70,15 @@ export const request = <T>(options: UniApp.RequestOptions) => {
       success(res) {
         // 状态码 2xx， axios 就是这样设计的
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          // 2.1 提取核心数据 res.data
-          resolve(res.data as Data<T>)
+          if ((res.data as Data<T>).code === 400) {
+            uni.showToast({
+              icon: 'error',
+              title: (res.data as Data<T>).message || '请求错误',
+            })
+          } else {
+            // 2.1 提取核心数据 res.data
+            resolve(res.data as Data<T>)
+          }
         } else if (res.statusCode === 401) {
           // 401错误  -> 清理用户信息，跳转到登录页
           // const memberStore = useMemberStore()
@@ -80,10 +87,7 @@ export const request = <T>(options: UniApp.RequestOptions) => {
           reject(res)
         } else {
           // 其他错误 -> 根据后端错误信息轻提示
-          uni.showToast({
-            icon: 'none',
-            title: (res.data as Data<T>).message || '请求错误',
-          })
+
           reject(res)
         }
       },

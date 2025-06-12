@@ -15,6 +15,7 @@ export const useMemberStore = defineStore(
       birthday: '',
       gender: '',
       isLogin: false,
+      isShopJoin: false,
     })
 
     // 保存会员信息，登录时使用
@@ -32,6 +33,7 @@ export const useMemberStore = defineStore(
         birthday: '',
         gender: '',
         isLogin: false,
+        isShopJoin: false,
       }
     }
 

@@ -14,4 +14,6 @@ export type UserInfoItem = {
   birthday: string
   /** 是否登录 */
   isLogin: boolean
+  /** 是否申请入驻商户 */
+  isShopJoin: boolean
 }

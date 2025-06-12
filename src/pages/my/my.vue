@@ -5,7 +5,10 @@ import type { UserInfoItem } from '@/types/userInfo'
 
 const menberStore = useMemberStore()
 
-// 构建测试登录默认信息
+/**
+ * 构建测试登录默认信息
+ * 正式登录时，从服务器获取
+ */
 const userInfo = ref<UserInfoItem>({
   _id: '68428adbf35ac2cbc7b7c836',
   user_avatar: 'https://objectstorageapi.gzg.sealos.run/dxepxlzz-hmqq-ai/images/avatar.jpg',
@@ -14,6 +17,7 @@ const userInfo = ref<UserInfoItem>({
   isLogin: false,
   gender: '',
   birthday: '',
+  isShopJoin: menberStore.profile.isShopJoin || false,
 })
 
 // 点击登录
@@ -70,6 +74,24 @@ const handleManageAffairs = (val: string) => {
 
 // 处理商家入驻
 const handleShopJoin = () => {
+  // 检测用户是否登录
+  if (!menberStore.profile?.isLogin) {
+    uni.showToast({
+      icon: 'none',
+      title: '请先登录',
+    })
+    return
+  }
+
+  // 检测用户是否重复申请
+  if (menberStore.profile?.isShopJoin) {
+    uni.showToast({
+      icon: 'none',
+      title: '请耐心等待审核结果',
+    })
+    return
+  }
+
   uni.navigateTo({
     url: '/subPackages/shopJoin/shopJoin',
   })
