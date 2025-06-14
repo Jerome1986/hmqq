@@ -1,44 +1,32 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { aiCateGetApi } from '@/api/home.ts'
 import type { AiCategoryItem } from '@/types/home'
 
-// ai智能体分类列表
-const aiCateList = ref<AiCategoryItem[]>([])
-// 添加loading状态
-const isLoading = ref(false)
-
-const aiCateGet = async () => {
-  // 设置loading状态
-  isLoading.value = true
-  try {
-    const res = await aiCateGetApi()
-    aiCateList.value = res.data
-  } catch (error) {
-    console.error('获取AI分类数据失败:', error)
-    uni.showToast({ icon: 'error', title: '获取数据失败' })
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(() => {
-  aiCateGet()
-})
+// 通过props接收数据
+defineProps<{
+  aiCateList: AiCategoryItem[]
+  isLoading: boolean
+}>()
 </script>
 
 <template>
   <view class="ai">
     <view class="title">AI智能体</view>
     <!-- 加载状态显示 -->
-    <view class="loading" v-if="isLoading">
+    <view class="loading" v-show="isLoading">
       <view class="loading-icon"></view>
       <text>加载中...</text>
     </view>
     <!-- AI列表 -->
-    <view v-else class="aiView">
+    <view v-show="!isLoading" class="aiView">
       <view class="aiItem" v-for="item in aiCateList" :key="item._id">
-        <image class="aiAvatar" :src="item.aiAvatar" mode="aspectFill"></image>
+        <image
+          class="aiAvatar"
+          :src="
+            item.aiAvatar +
+            '?x-oss-process=image/resize,w_200,h_200/format,webp/quality,q_75/interlace,1'
+          "
+          mode="aspectFill"
+        ></image>
         <view class="aiName">{{ item.aiName }}</view>
       </view>
     </view>

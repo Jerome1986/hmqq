@@ -16,6 +16,9 @@ const chatListGet = async () => {
 const handleChatClick = (id: string) => {
   //  跳转到对应的ai
   console.log(id)
+  uni.navigateTo({
+    url: `/pages/dialogue/dialogue?id=${id}`,
+  })
 }
 
 onMounted(() => {
@@ -33,7 +36,10 @@ onMounted(() => {
     >
       <!-- 头像 -->
       <view class="avatar">
-        <image :src="item.aiAvatar" mode="aspectFill"></image>
+        <image
+          :src="item.aiAvatar + '?x-oss-process=image/resize,w_100,h_100/format,webp'"
+          mode="aspectFill"
+        ></image>
       </view>
       <!-- 内容 -->
       <view class="content">

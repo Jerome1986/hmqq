@@ -2,9 +2,32 @@
 import Ai from '@/components/Ai.vue'
 import GroupBuy from '@/components/GroupBuy.vue'
 import { useGroupBuyList } from '@/composables/home.ts'
+import { ref } from 'vue'
+import { aiCateGetApi } from '@/api/home.ts'
+import type { AiCategoryItem } from '@/types/home'
 
 // 团购列表组合式函数调用
 const { groupBuyRef, onScrolltolower } = useGroupBuyList()
+
+// ai智能体分类列表
+const aiCateList = ref<AiCategoryItem[]>([])
+const isLoading = ref(false)
+
+const aiCateGet = async () => {
+  isLoading.value = true
+  try {
+    const res = await aiCateGetApi()
+    aiCateList.value = res.data
+  } catch (error) {
+    console.error('获取AI分类数据失败:', error)
+    uni.showToast({ icon: 'error', title: '获取数据失败' })
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// 页面加载时获取数据
+aiCateGet()
 </script>
 
 <template>
@@ -16,14 +39,15 @@ const { groupBuyRef, onScrolltolower } = useGroupBuyList()
         <swiper :circular="true" :indicator-dots="true" :autoplay="true">
           <swiper-item class="bannerItem">
             <image
-              src="https://objectstorageapi.gzg.sealos.run/dxepxlzz-hmqq-ai/images/banner.jpg"
+              src="https://objectstorageapi.gzg.sealos.run/dxepxlzz-hmqq-ai/images/banner.jpg?x-oss-process=image/resize"
               mode="aspectFill"
+              :lazy-load="true"
             ></image>
           </swiper-item>
         </swiper>
       </view>
       <!-- AI智能体 -->
-      <Ai></Ai>
+      <Ai :ai-cate-list="aiCateList" :is-loading="isLoading"></Ai>
       <!-- 推荐团购 -->
       <GroupBuy ref="groupBuyRef"></GroupBuy>
     </scroll-view>

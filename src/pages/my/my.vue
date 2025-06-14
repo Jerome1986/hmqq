@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useMemberStore } from '@/stores'
 import type { UserInfoItem } from '@/types/userInfo'
 
+// 定义用户store
 const menberStore = useMemberStore()
 
 /**
@@ -18,6 +19,7 @@ const userInfo = ref<UserInfoItem>({
   gender: '',
   birthday: '',
   isShopJoin: menberStore.profile.isShopJoin || false,
+  isExpert: menberStore.profile.isExpert || false,
 })
 
 // 点击登录
@@ -33,6 +35,9 @@ const handleLogout = () => {
   menberStore.clearProfile()
   console.log(menberStore.profile)
 }
+
+// 获取弹窗组件
+const popup = ref()
 
 // 处理我的页面所有事件
 const handleManageAffairs = (val: string) => {
@@ -65,6 +70,7 @@ const handleManageAffairs = (val: string) => {
       break
     case '客服信息':
       console.log('客服信息')
+      popup.value.open()
       break
     case '后台管理':
       console.log('后台管理')
@@ -96,6 +102,32 @@ const handleShopJoin = () => {
     url: '/subPackages/shopJoin/shopJoin',
   })
 }
+
+// 处理达人入驻
+const handleExpertJoin = () => {
+  // 检测用户是否登录
+  if (!menberStore.profile?.isLogin) {
+    uni.showToast({
+      icon: 'none',
+      title: '请先登录',
+    })
+    return
+  }
+
+  // 检测是否提交
+  if (menberStore.profile.isExpert) {
+    uni.showToast({
+      icon: 'none',
+      title: '请勿重复提交',
+    })
+    return
+  }
+
+  // 跳转
+  uni.navigateTo({
+    url: '/subPackages/expertJoin/expertJoin',
+  })
+}
 </script>
 
 <template>
@@ -118,7 +150,7 @@ const handleShopJoin = () => {
         <image src="/static/images/shopJoin.png" mode="widthFix"></image>
         <text>商家入驻</text>
       </view>
-      <view class="apply-item talent">
+      <view class="apply-item talent" @tap="handleExpertJoin">
         <image src="/static/images/drJoin.png" mode="aspectFill"></image>
         <text>达人入驻</text>
       </view>
@@ -171,6 +203,19 @@ const handleShopJoin = () => {
         >后台管理</view
       >
     </view>
+    <!--  弹窗组件  -->
+    <uni-popup ref="popup" type="center">
+      <view class="qrCode">
+        <view class="title">专属客服</view>
+        <view class="qrWrapper">
+          <image src="/static/images/qrcode.jpg" mode="aspectFit"></image>
+        </view>
+        <view class="tips">
+          <text class="iconfont icon-kefuxinxi"></text>
+          <text>长按识别二维码添加专属客服</text>
+        </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
@@ -371,6 +416,52 @@ page {
     .admin-btn {
       color: $color-title;
       background-color: #fff;
+    }
+  }
+}
+
+.qrCode {
+  width: 580rpx;
+  padding: 48rpx;
+  background-color: #fff;
+  border-radius: 24rpx;
+
+  /* 标题 */
+  .title {
+    margin-bottom: 32rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: $color-title;
+    text-align: center;
+  }
+
+  /* 二维码容器 */
+  .qrWrapper {
+    width: 400rpx;
+    height: 400rpx;
+    margin: 0 auto 24rpx;
+    padding: 20rpx;
+    background: #f8f8f8;
+    border-radius: 16rpx;
+
+    image {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  /* 提示文字 */
+  .tips {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
+    font-size: 28rpx;
+    color: $color-text-secondary;
+
+    .iconfont {
+      font-size: 32rpx;
+      color: $brand-color-primary;
     }
   }
 }

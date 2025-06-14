@@ -16,6 +16,7 @@ export const useMemberStore = defineStore(
       gender: '',
       isLogin: false,
       isShopJoin: false,
+      isExpert: false,
     })
 
     // 保存会员信息，登录时使用
@@ -34,6 +35,7 @@ export const useMemberStore = defineStore(
         gender: '',
         isLogin: false,
         isShopJoin: false,
+        isExpert: false,
       }
     }
 

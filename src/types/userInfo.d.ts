@@ -16,4 +16,6 @@ export type UserInfoItem = {
   isLogin: boolean
   /** 是否申请入驻商户 */
   isShopJoin: boolean
+  /** 是否申请达人 */
+  isExpert: boolean
 }

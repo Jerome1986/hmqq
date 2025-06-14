@@ -64,6 +64,14 @@
         "navigationStyle": "custom",
         "enablePullDownRefresh": false
       }
+    },
+    {
+      "path": "pages/dialogue/dialogue",
+      "style": {
+        "navigationBarTitleText": "对话",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "subPackages": [
@@ -91,6 +99,13 @@
           "style": {
             "navigationBarTitleText": "商家入驻",
             "navigationStyle": "custom",
+            "enablePullDownRefresh": false
+          }
+        },
+        {
+          "path": "expertJoin/expertJoin",
+          "style": {
+            "navigationBarTitleText": "达人入驻",
             "enablePullDownRefresh": false
           }
         }
