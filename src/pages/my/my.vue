@@ -10,28 +10,18 @@ const menberStore = useMemberStore()
  * 构建测试登录默认信息
  * 正式登录时，从服务器获取
  */
-const userInfo = ref<UserInfoItem>({
-  _id: '68428adbf35ac2cbc7b7c836',
-  user_avatar: 'https://objectstorageapi.gzg.sealos.run/dxepxlzz-hmqq-ai/images/avatar.jpg',
-  nickname: 'jerome',
-  role: ['admin'],
-  isLogin: false,
-  gender: '',
-  birthday: '',
-  isShopJoin: menberStore.profile.isShopJoin || false,
-  isExpert: menberStore.profile.isExpert || false,
-})
+const userInfo = ref<UserInfoItem>()
 
 // 点击登录
 const login = () => {
   console.log('登录')
-  userInfo.value.isLogin = true
-  menberStore.setProfile(userInfo.value)
+  uni.navigateTo({
+    url: '/pages/login/login',
+  })
 }
 
 // 退出登录
 const handleLogout = () => {
-  userInfo.value.isLogin = false
   menberStore.clearProfile()
   console.log(menberStore.profile)
 }
@@ -59,6 +49,9 @@ const handleManageAffairs = (val: string) => {
       break
     case '订单信息':
       console.log('订单信息')
+      uni.navigateTo({
+        url: '/subPackages/order/order',
+      })
       break
     case '收藏团购':
       uni.navigateTo({
@@ -67,6 +60,9 @@ const handleManageAffairs = (val: string) => {
       break
     case '券卡信息':
       console.log('券卡信息')
+      uni.navigateTo({
+        url: '/subPackages/coupon/coupon',
+      })
       break
     case '客服信息':
       console.log('客服信息')
@@ -197,7 +193,7 @@ const handleExpertJoin = () => {
         >退出登录</view
       >
       <view
-        v-if="menberStore.profile?.role[0] === 'admin'"
+        v-if="menberStore.profile?.role === 'admin'"
         class="admin-btn"
         @tap="handleManageAffairs('后台管理')"
         >后台管理</view

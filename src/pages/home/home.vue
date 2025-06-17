@@ -2,12 +2,17 @@
 import Ai from '@/components/Ai.vue'
 import GroupBuy from '@/components/GroupBuy.vue'
 import { useGroupBuyList } from '@/composables/home.ts'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { aiCateGetApi } from '@/api/home.ts'
 import type { AiCategoryItem } from '@/types/home'
+import { loginApi } from '@/api/login.ts'
+import { useMemberStore } from '@/stores'
 
 // 团购列表组合式函数调用
 const { groupBuyRef, onScrolltolower } = useGroupBuyList()
+
+// 定义用户store
+const memberStore = useMemberStore()
 
 // ai智能体分类列表
 const aiCateList = ref<AiCategoryItem[]>([])
@@ -26,8 +31,36 @@ const aiCateGet = async () => {
   }
 }
 
+// 获取 URL 中的查询参数
+function getQueryParam(param: string) {
+  const urlParams = new URLSearchParams(window.location.search)
+  return urlParams.get(param)
+}
+
+// 根据页面code处理登录
+const loginByWx = async () => {
+  const code = getQueryParam('code')
+  if (code) {
+    const res = await loginApi(code)
+    console.log(res)
+    if (res.code === 200) {
+      uni.showToast({
+        icon: 'success',
+        title: '登录成功',
+      })
+
+      // 登录成功，更新用户store
+      memberStore.setProfile(res.data)
+    }
+  }
+}
+
 // 页面加载时获取数据
 aiCateGet()
+
+onMounted(() => {
+  loginByWx()
+})
 </script>
 
 <template>

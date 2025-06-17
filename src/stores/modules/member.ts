@@ -9,9 +9,10 @@ export const useMemberStore = defineStore(
     // 会员信息
     const profile = ref<UserInfoItem>({
       _id: '',
+      openid: '',
       user_avatar: '/static/images/avatar.png',
       nickname: '点击登录',
-      role: ['user'],
+      role: '',
       birthday: '',
       gender: '',
       isLogin: false,
@@ -28,9 +29,10 @@ export const useMemberStore = defineStore(
     const clearProfile = () => {
       profile.value = {
         _id: '',
+        openid: '',
         user_avatar: '/static/images/avatar.png',
         nickname: '点击登录',
-        role: ['user'],
+        role: '',
         birthday: '',
         gender: '',
         isLogin: false,
