@@ -45,7 +45,11 @@ const handleSave = async () => {
 
     // 如果更新成功，更新本地数据
     if (res.data.acknowledged) {
-      memberStore.setProfile({ gender: formData.value.gender, birthday: formData.value.birthday })
+      memberStore.setProfile({
+        gender: formData.value.gender,
+        mobile: formData.value.mobile,
+        birthday: formData.value.birthday,
+      })
 
       // 防抖
       setTimeout(() => {

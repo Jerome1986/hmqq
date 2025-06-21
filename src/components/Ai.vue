@@ -1,11 +1,40 @@
 <script setup lang="ts">
 import type { AiCategoryItem } from '@/types/home'
+import { useMemberStore } from '@/stores'
 
 // 通过props接收数据
 defineProps<{
   aiCateList: AiCategoryItem[]
   isLoading: boolean
 }>()
+
+// 用户store
+const memberStore = useMemberStore()
+
+// 处理AI跳转
+const handleAiCate = (aiId: string) => {
+  // 检测是否登录
+  if (!memberStore.profile.isLogin) {
+    uni.showModal({
+      title: '提示',
+      content: '登录后才可以和AI对话噢',
+      confirmColor: '#fb5383',
+      success: (res) => {
+        if (res.confirm) {
+          uni.navigateTo({
+            url: '/pages/login/login',
+          })
+        }
+      },
+    })
+    return
+  }
+
+  // 跳转对应AI聊天
+  uni.navigateTo({
+    url: `/pages/dialogue/dialogue?id=${aiId}`,
+  })
+}
 </script>
 
 <template>
@@ -18,7 +47,7 @@ defineProps<{
     </view>
     <!-- AI列表 -->
     <view v-show="!isLoading" class="aiView">
-      <view class="aiItem" v-for="item in aiCateList" :key="item._id">
+      <view class="aiItem" v-for="item in aiCateList" :key="item._id" @tap="handleAiCate(item._id)">
         <image
           class="aiAvatar"
           :src="

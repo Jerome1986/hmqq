@@ -154,7 +154,7 @@
         "selectedIconPath": "static/tabs/find_select.png"
       },
       {
-        "text": "算鸟AI",
+        "text": "Ai智能体",
         "pagePath": "pages/ai/ai",
         "iconPath": "static/tabs/ai.png",
         "selectedIconPath": "static/tabs/ai_select.png"

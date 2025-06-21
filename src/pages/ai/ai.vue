@@ -2,6 +2,10 @@
 import { onMounted, ref } from 'vue'
 import { aiCateGetApi } from '@/api/home.ts'
 import type { AiCategoryItem } from '@/types/home'
+import { useMemberStore } from '@/stores'
+
+// 用户store
+const memberStore = useMemberStore()
 
 // 获取ai列表
 const chatList = ref<AiCategoryItem[]>([])
@@ -14,6 +18,15 @@ const chatListGet = async () => {
 
 // 处理点击对话
 const handleChatClick = (id: string) => {
+  // 检测是否登录
+  if (!memberStore.profile.isLogin) {
+    uni.showToast({
+      icon: 'none',
+      title: '登录后才可使用AI',
+      mask: true,
+    })
+    return
+  }
   //  跳转到对应的ai
   console.log(id)
   uni.navigateTo({
