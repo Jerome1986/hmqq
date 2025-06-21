@@ -214,7 +214,7 @@ defineExpose({
           margin-top: 4rpx;
           display: flex;
           align-items: center;
-          font-size: 20rpx;
+          font-size: 24rpx;
           color: $color-text-secondary;
 
           /* 销售信息 */

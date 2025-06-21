@@ -145,13 +145,53 @@ onMounted(async () => {
               消费须知: groupData.usageInstructions,
               服务保障: groupData.serviceGuarantee,
               有效期限: groupData.validityPeriod,
-              适用门店: groupData.applicableStores,
             }"
             :key="key"
           >
             <text class="label">{{ key }}</text>
             <text class="value">{{ item }}</text>
           </view>
+        </view>
+        <!--  适用门店--仅当前门店可用   -->
+        <view class="useShop" v-if="true">
+          <view class="top">
+            <view class="title">适用商户</view>
+            <view class="text">仅当前门店可用</view>
+          </view>
+          <view class="bottom">
+            <!-- 门店信息 -->
+            <view class="left">
+              <view class="shopImg">
+                <image></image>
+              </view>
+              <view class="shopInfo">
+                <view class="shopName">商户名称</view>
+                <view class="shopTime">营业时间 16:00 - 00:00 </view>
+                <view class="shopAddress">店铺地址</view>
+              </view>
+            </view>
+            <!-- 联系电话 -->
+            <view class="contactShop">
+              <view class="icon">
+                <text class="iconfont icon-fabu"></text>
+              </view>
+              <view class="dec">联系商家</view>
+            </view>
+          </view>
+        </view>
+        <!--  适用门店--多门店可用   -->
+        <view
+          class="useShop"
+          style="display: flex; justify-content: space-between; align-items: center"
+          v-else
+        >
+          <view class="title" style="color: #18191c; font-weight: 600">适用商户</view>
+          <view class="text" style="font-size: 24rpx; color: #61666d"
+            >多门店可用<text
+              class="iconfont icon-you"
+              style="font-size: 24rpx; color: #9499a0"
+            ></text
+          ></view>
         </view>
 
         <!-- 团购详情 -->
@@ -160,6 +200,7 @@ onMounted(async () => {
           <view class="content">
             <view class="item">
               <text class="label">套餐内容</text>
+              <!-- 这里渲染套餐的菜品 -->
               <view class="itemContent">
                 <text class="value">团购套餐五选其一</text>
                 <view class="priceWrapper">
@@ -420,6 +461,94 @@ onMounted(async () => {
         }
       }
 
+      /*适用门店*/
+      .useShop {
+        margin-top: 16rpx;
+        padding: 24rpx;
+        background-color: #ffffff;
+        border-radius: 24rpx;
+
+        /*顶部title*/
+        .top {
+          margin-bottom: 32rpx;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: $color-title;
+
+          .title {
+            font-weight: 600;
+          }
+          .text {
+            font-size: 24rpx;
+            color: $color-text;
+          }
+        }
+        /*底部对应门店*/
+        .bottom {
+          display: flex;
+          justify-content: space-between;
+          /*门店信息*/
+          .left {
+            display: flex;
+            align-items: center;
+
+            /*封面图*/
+            .shopImg {
+              height: 112rpx;
+              width: 112rpx;
+              border-radius: 8rpx;
+              background-color: #d9d9d9;
+              image {
+                width: 100%;
+                height: 100%;
+              }
+            }
+            /*门店信息*/
+            .shopInfo {
+              margin-left: 16rpx;
+              display: flex;
+              flex-direction: column;
+              gap: 4rpx;
+              color: $color-title;
+              font-size: 24rpx;
+              .shopName {
+                font-weight: 600;
+              }
+              .shopTime {
+              }
+              .shopAddress {
+                color: $color-text;
+              }
+            }
+          }
+          /*联系电话*/
+          .contactShop {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 8rpx;
+            color: $color-text;
+            .icon {
+              text-align: center;
+              height: 48rpx;
+              width: 48rpx;
+              background-color: #e3e5e7;
+              border-radius: 16rpx;
+
+              .iconfont {
+                font-size: 28rpx;
+              }
+            }
+
+            .dec {
+              font-size: 24rpx;
+            }
+          }
+        }
+      }
+
       /* 团购详情和购买须知共同样式 */
       .groupInfo,
       .notice {
@@ -467,7 +596,10 @@ onMounted(async () => {
               display: flex;
               align-items: center;
               justify-content: space-between; // 两端对齐
-              border-bottom: 1px solid $color-divider;
+
+              &:nth-last-child(1) {
+                border-bottom: 1px solid $color-divider;
+              }
 
               .value {
                 margin-bottom: 16rpx;
