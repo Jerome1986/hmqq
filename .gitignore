@@ -11,3 +11,6 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# uni-app
+src/uni_modules/

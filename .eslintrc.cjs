@@ -41,5 +41,11 @@ module.exports = {
     'vue/no-setup-props-destructure': ['off'],
     'vue/no-deprecated-html-element-is': ['off'],
     '@typescript-eslint/no-unused-vars': ['off'],
+    // uni-app条件编译
+    'no-redeclare': 'off',
+    'no-dupe-class-members': 'off',
+    '@typescript-eslint/no-redeclare': 'off',
+    'no-constant-condition': ['off', { checkLoops: false }],
+    'no-dupe-keys': 'off',
   },
 }

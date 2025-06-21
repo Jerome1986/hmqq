@@ -12,6 +12,8 @@ export type UserInfoItem = {
   role: string
   /** 性别 */
   gender: string | number
+  /** 电话 */
+  mobile: string
   /** 生日 */
   birthday: string
   /** 是否登录 */

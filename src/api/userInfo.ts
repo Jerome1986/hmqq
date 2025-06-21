@@ -5,10 +5,15 @@ import { request } from '@/utils/request.ts'
  * /user-updateInfo
  */
 
-export const updateUserInfoApi = (user_id: string, gender?: string, birthday?: string) => {
+export const updateUserInfoApi = (
+  user_id: string,
+  gender?: string | number,
+  mobile?: string,
+  birthday?: string,
+) => {
   return request<any>({
     method: 'POST',
     url: '/user-updateInfo',
-    data: { user_id, gender, birthday },
+    data: { user_id, gender, mobile, birthday },
   })
 }

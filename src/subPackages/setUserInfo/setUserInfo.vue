@@ -8,8 +8,9 @@ const memberStore = useMemberStore()
 const dateTimeRefs = ref()
 // 表单数据
 const formData = ref({
-  gender: memberStore.profile?.gender || '',
+  gender: memberStore.profile?.gender || 0,
   birthday: memberStore.profile?.birthday || '',
+  mobile: memberStore.profile?.mobile || '',
 })
 
 // 处理点击事件
@@ -38,6 +39,7 @@ const handleSave = async () => {
     const res = await updateUserInfoApi(
       memberStore.profile?._id,
       formData.value.gender,
+      formData.value.mobile,
       formData.value.birthday,
     )
 
@@ -105,12 +107,38 @@ const handleSave = async () => {
       </view>
     </view>
 
+    <!-- 手机 -->
+    <view class="info-item" @tap="handleClick('birthday')">
+      <text class="label">手机</text>
+      <view class="content">
+        <uni-easyinput
+          v-model="formData.mobile"
+          class="ipt"
+          :inputBorder="false"
+          trim
+          placeholder="请填写手机号码"
+          primaryColor=" #fb5383"
+        ></uni-easyinput>
+      </view>
+    </view>
+
     <!-- 保存按钮 -->
     <view class="save-btn" @tap="handleSave">保存</view>
   </view>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
+/* 日期选择器样式重写 */
+:deep(.uni-picker-container) {
+  .uni-picker-header {
+    .uni-picker-action {
+      &.uni-picker-action-confirm {
+        color: $brand-color-primary !important;
+      }
+    }
+  }
+}
+
 .user-info {
   min-height: 100vh;
   background-color: #f5f5f5;
@@ -142,6 +170,11 @@ const handleSave = async () => {
         border-radius: 50%;
       }
 
+      /*输入框*/
+      .ipt {
+        text-align: end;
+      }
+
       .value {
         font-size: 28rpx;
         color: $color-title;
@@ -151,7 +184,7 @@ const handleSave = async () => {
           color: $color-text-secondary;
         }
       }
-
+      /*日期编辑器*/
       :deep(.uni-date) {
         width: auto;
         .uni-date-editor {
@@ -167,6 +200,7 @@ const handleSave = async () => {
     }
   }
 
+  /*保存按钮*/
   .save-btn {
     position: fixed;
     left: 16rpx;
