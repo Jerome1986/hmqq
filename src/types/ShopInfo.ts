@@ -25,6 +25,46 @@ export type ShopInfo = {
   business_licenses: string
   /** 其他证件 */
   other_certificates?: string
-  /** 状态（默认为0，0代表审核中，1代表审核通过 2代表被封禁或下架） */
+  /**
+   * 状态
+   * @example （默认为0，0代表审核中，1代表审核通过 2代表被封禁或下架）
+   */
   state: number
+}
+
+/**
+ * 适用门店信息
+ * @type AvailableStores
+ * @description 用于存储和展示团购可用门店的详细信息
+ */
+
+export type AvailableStores = {
+  /** 对应的团购ID */
+  groupId: string
+
+  /** 店面封面图片URL */
+  shopPic: string
+
+  /** 店铺名称 */
+  shopName: string
+
+  /**
+   * 营业时间
+   * @example "09:00-22:00"
+   */
+  shopTime: string
+
+  /**
+   * 详细地址
+   * @example "广东省深圳市南山区xx街xx号"
+   */
+  shopAddress: string
+
+  /**
+   * 当前门店联系电话
+   * @example "0755-88888888"
+   */
+  shopMobile: string
+  /** 定位url */
+  positioning: string
 }

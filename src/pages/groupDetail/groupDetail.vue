@@ -3,6 +3,9 @@ import { onMounted, ref, computed } from 'vue'
 import type { GroupBuyItem } from '@/types/home'
 import { groupDetailApi } from '@/api/groupDetail.ts'
 import { useLoveStore, useMemberStore } from '@/stores'
+import { availableStoresApi } from '@/api/shopInfo.ts'
+import type { AvailableStores } from '@/types/ShopInfo.ts'
+import Notice from '@/pages/groupDetail/components/Notice.vue'
 
 const props = defineProps({
   id: {
@@ -30,6 +33,16 @@ const groupDataGet = async (id: string) => {
     ...res.data,
     isLoved: loveStore.isLoved(id),
   }
+  // 同步获取到对应门店
+  await groupAvailableStoresGet(res.data._id)
+}
+
+// 获取团购对应的门店
+const availableStoresData = ref<AvailableStores[]>([])
+const groupAvailableStoresGet = async (groupId: string) => {
+  const res = await availableStoresApi(groupId)
+  console.log(res.data)
+  availableStoresData.value = res.data
 }
 
 // 处理收藏点击
@@ -153,7 +166,7 @@ onMounted(async () => {
           </view>
         </view>
         <!--  适用门店--仅当前门店可用   -->
-        <view class="useShop" v-if="true">
+        <view class="useShop" v-if="availableStoresData.length === 1">
           <view class="top">
             <view class="title">适用商户</view>
             <view class="text">仅当前门店可用</view>
@@ -162,18 +175,21 @@ onMounted(async () => {
             <!-- 门店信息 -->
             <view class="left">
               <view class="shopImg">
-                <image></image>
+                <image :src="availableStoresData[0].shopPic"></image>
               </view>
               <view class="shopInfo">
-                <view class="shopName">商户名称</view>
-                <view class="shopTime">营业时间 16:00 - 00:00 </view>
-                <view class="shopAddress">店铺地址</view>
+                <view class="shopName">{{ availableStoresData[0].shopName }}</view>
+                <view class="shopTime">营业时间 {{ availableStoresData[0].shopTime }} </view>
+                <view class="shopAddress">
+                  <text class="iconfont icon-dingwei"></text>
+                  <text class="address">{{ availableStoresData[0].shopAddress }}</text>
+                </view>
               </view>
             </view>
             <!-- 联系电话 -->
             <view class="contactShop">
               <view class="icon">
-                <text class="iconfont icon-fabu"></text>
+                <text class="iconfont icon-a-Vector189"></text>
               </view>
               <view class="dec">联系商家</view>
             </view>
@@ -187,10 +203,8 @@ onMounted(async () => {
         >
           <view class="title" style="color: #18191c; font-weight: 600">适用商户</view>
           <view class="text" style="font-size: 24rpx; color: #61666d"
-            >多门店可用<text
-              class="iconfont icon-you"
-              style="font-size: 24rpx; color: #9499a0"
-            ></text
+            >{{ groupData.applicableStores
+            }}<text class="iconfont icon-you" style="font-size: 24rpx; color: #9499a0"></text
           ></view>
         </view>
 
@@ -216,24 +230,8 @@ onMounted(async () => {
           </view>
         </view>
 
-        <!-- 购买须知 -->
-        <view class="notice">
-          <view class="title">消费须知</view>
-          <view class="content">
-            <view class="item">
-              <text class="label">有效期</text>
-              <text class="value">购买后2天内可用</text>
-            </view>
-            <view class="item">
-              <text class="label">使用时间</text>
-              <text class="value">营业时间内可用</text>
-            </view>
-            <view class="item">
-              <text class="label">使用规则</text>
-              <text class="value">使用规则文案,具体应有商家提供或抓取</text>
-            </view>
-          </view>
-        </view>
+        <!-- 消费须知 -->
+        <Notice :validityPeriod="groupData.validityPeriod"></Notice>
       </view>
     </view>
 
@@ -490,8 +488,10 @@ onMounted(async () => {
           justify-content: space-between;
           /*门店信息*/
           .left {
+            flex: 1;
             display: flex;
             align-items: center;
+            overflow: hidden;
 
             /*封面图*/
             .shopImg {
@@ -499,6 +499,7 @@ onMounted(async () => {
               width: 112rpx;
               border-radius: 8rpx;
               background-color: #d9d9d9;
+              overflow: hidden;
               image {
                 width: 100%;
                 height: 100%;
@@ -506,10 +507,12 @@ onMounted(async () => {
             }
             /*门店信息*/
             .shopInfo {
+              flex: 1;
               margin-left: 16rpx;
               display: flex;
               flex-direction: column;
-              gap: 4rpx;
+              justify-content: space-between;
+              height: 100%;
               color: $color-title;
               font-size: 24rpx;
               .shopName {
@@ -519,16 +522,33 @@ onMounted(async () => {
               }
               .shopAddress {
                 color: $color-text;
+                display: flex;
+                align-items: center;
+                gap: 4rpx;
+                width: 360rpx;
+
+                .address {
+                  white-space: nowrap; /* 禁止换行 */
+                  overflow: hidden; /* 超出部分隐藏 */
+                  text-overflow: ellipsis; /* 超出部分显示省略号 */
+                }
+
+                .icon-dingwei {
+                  font-size: 32rpx;
+                  color: $brand-color-primary;
+                }
               }
             }
           }
           /*联系电话*/
           .contactShop {
+            margin-left: 32rpx;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             gap: 8rpx;
+            width: 100rpx;
             color: $color-text;
             .icon {
               text-align: center;
@@ -537,8 +557,9 @@ onMounted(async () => {
               background-color: #e3e5e7;
               border-radius: 16rpx;
 
-              .iconfont {
+              .icon-a-Vector189 {
                 font-size: 28rpx;
+                color: $color-title;
               }
             }
 
@@ -549,9 +570,8 @@ onMounted(async () => {
         }
       }
 
-      /* 团购详情和购买须知共同样式 */
-      .groupInfo,
-      .notice {
+      /* 团购详情 */
+      .groupInfo {
         margin-top: 20rpx;
         padding: 30rpx;
         background-color: #fff;
