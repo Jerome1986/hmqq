@@ -72,6 +72,14 @@
         "navigationStyle": "custom",
         "enablePullDownRefresh": false
       }
+    },
+    {
+      "path": "pages/shopList/shopList",
+      "style": {
+        "navigationBarTitleText": "适用门店",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "subPackages": [

@@ -39,6 +39,8 @@ export type ShopInfo = {
  */
 
 export type AvailableStores = {
+  /** 唯一id */
+  _id?: string
   /** 对应的团购ID */
   groupId: string
 

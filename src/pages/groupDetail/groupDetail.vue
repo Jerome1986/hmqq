@@ -6,6 +6,8 @@ import { useLoveStore, useMemberStore } from '@/stores'
 import { availableStoresApi } from '@/api/shopInfo.ts'
 import type { AvailableStores } from '@/types/ShopInfo.ts'
 import Notice from '@/pages/groupDetail/components/Notice.vue'
+import GroupInfo from '@/pages/groupDetail/components/GroupInfo.vue'
+import ShopCard from '@/components/ShopCard.vue'
 
 const props = defineProps({
   id: {
@@ -63,6 +65,13 @@ const handleLove = async () => {
 // 监听轮播图改变
 const handleSwiperChange = (e: any) => {
   currentIndex.value = e.detail.current + 1
+}
+
+// 跳转到适用门店
+const handleShopList = () => {
+  uni.navigateTo({
+    url: `/pages/shopList/shopList?groupId=${groupData.value?._id}`,
+  })
 }
 
 // 组件挂载时初始化数据
@@ -171,29 +180,8 @@ onMounted(async () => {
             <view class="title">适用商户</view>
             <view class="text">仅当前门店可用</view>
           </view>
-          <view class="bottom">
-            <!-- 门店信息 -->
-            <view class="left">
-              <view class="shopImg">
-                <image :src="availableStoresData[0].shopPic"></image>
-              </view>
-              <view class="shopInfo">
-                <view class="shopName">{{ availableStoresData[0].shopName }}</view>
-                <view class="shopTime">营业时间 {{ availableStoresData[0].shopTime }} </view>
-                <view class="shopAddress">
-                  <text class="iconfont icon-dingwei"></text>
-                  <text class="address">{{ availableStoresData[0].shopAddress }}</text>
-                </view>
-              </view>
-            </view>
-            <!-- 联系电话 -->
-            <view class="contactShop">
-              <view class="icon">
-                <text class="iconfont icon-a-Vector189"></text>
-              </view>
-              <view class="dec">联系商家</view>
-            </view>
-          </view>
+          <!--  门店信息组件    -->
+          <ShopCard :available-stores-data="availableStoresData[0]"></ShopCard>
         </view>
         <!--  适用门店--多门店可用   -->
         <view
@@ -202,34 +190,15 @@ onMounted(async () => {
           v-else
         >
           <view class="title" style="color: #18191c; font-weight: 600">适用商户</view>
-          <view class="text" style="font-size: 24rpx; color: #61666d"
-            >{{ groupData.applicableStores
-            }}<text class="iconfont icon-you" style="font-size: 24rpx; color: #9499a0"></text
+
+          <view @tap="handleShopList" class="text" style="font-size: 24rpx; color: #61666d"
+            >{{ groupData.applicableStores }}
+            <text class="iconfont icon-you" style="font-size: 24rpx; color: #9499a0"></text
           ></view>
         </view>
 
         <!-- 团购详情 -->
-        <view class="groupInfo">
-          <view class="title">团购详情</view>
-          <view class="content">
-            <view class="item">
-              <text class="label">套餐内容</text>
-              <!-- 这里渲染套餐的菜品 -->
-              <view class="itemContent">
-                <text class="value">团购套餐五选其一</text>
-                <view class="priceWrapper">
-                  <text class="unit">(x1)</text>
-                  <text class="price">¥196</text>
-                </view>
-              </view>
-            </view>
-            <view class="item">
-              <text class="label">备注</text>
-              <text class="value">这里传详情图</text>
-            </view>
-          </view>
-        </view>
-
+        <GroupInfo></GroupInfo>
         <!-- 消费须知 -->
         <Notice :validityPeriod="groupData.validityPeriod"></Notice>
       </view>
@@ -480,178 +449,6 @@ onMounted(async () => {
           .text {
             font-size: 24rpx;
             color: $color-text;
-          }
-        }
-        /*底部对应门店*/
-        .bottom {
-          display: flex;
-          justify-content: space-between;
-          /*门店信息*/
-          .left {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-
-            /*封面图*/
-            .shopImg {
-              height: 112rpx;
-              width: 112rpx;
-              border-radius: 8rpx;
-              background-color: #d9d9d9;
-              overflow: hidden;
-              image {
-                width: 100%;
-                height: 100%;
-              }
-            }
-            /*门店信息*/
-            .shopInfo {
-              flex: 1;
-              margin-left: 16rpx;
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
-              height: 100%;
-              color: $color-title;
-              font-size: 24rpx;
-              .shopName {
-                font-weight: 600;
-              }
-              .shopTime {
-              }
-              .shopAddress {
-                color: $color-text;
-                display: flex;
-                align-items: center;
-                gap: 4rpx;
-                width: 360rpx;
-
-                .address {
-                  white-space: nowrap; /* 禁止换行 */
-                  overflow: hidden; /* 超出部分隐藏 */
-                  text-overflow: ellipsis; /* 超出部分显示省略号 */
-                }
-
-                .icon-dingwei {
-                  font-size: 32rpx;
-                  color: $brand-color-primary;
-                }
-              }
-            }
-          }
-          /*联系电话*/
-          .contactShop {
-            margin-left: 32rpx;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            gap: 8rpx;
-            width: 100rpx;
-            color: $color-text;
-            .icon {
-              text-align: center;
-              height: 48rpx;
-              width: 48rpx;
-              background-color: #e3e5e7;
-              border-radius: 16rpx;
-
-              .icon-a-Vector189 {
-                font-size: 28rpx;
-                color: $color-title;
-              }
-            }
-
-            .dec {
-              font-size: 24rpx;
-            }
-          }
-        }
-      }
-
-      /* 团购详情 */
-      .groupInfo {
-        margin-top: 20rpx;
-        padding: 30rpx;
-        background-color: #fff;
-        border-radius: 24rpx;
-
-        /* 标题 */
-        .title {
-          font-size: 32rpx;
-          font-weight: 600;
-          color: $color-title;
-        }
-
-        /* 内容区域 */
-        .content {
-          /* 内容项 */
-          .item {
-            display: flex;
-            flex-direction: column;
-            font-size: 28rpx;
-            color: $color-text;
-
-            /* 标签 */
-            .label {
-              font-size: 28rpx;
-              font-weight: 600;
-              color: $color-title;
-
-              &::before {
-                // 使用伪元素添加点
-                content: '·';
-                padding: 20rpx 8rpx; // 10px = 20rpx, 4px = 8rpx
-                color: #9499a0;
-                font-size: 32rpx;
-                line-height: 1;
-                display: inline-block;
-                transform: translateY(-1rpx);
-              }
-            }
-
-            /* 内容区域 */
-            .itemContent {
-              display: flex;
-              align-items: center;
-              justify-content: space-between; // 两端对齐
-
-              &:nth-last-child(1) {
-                border-bottom: 1px solid $color-divider;
-              }
-
-              .value {
-                margin-bottom: 16rpx;
-                color: $color-text;
-                font-size: 24rpx;
-                font-weight: 400;
-              }
-
-              /* 右侧价格区域 */
-              .priceWrapper {
-                display: flex;
-                align-items: center;
-                color: $color-text;
-                font-size: 24rpx;
-
-                .unit {
-                  margin-right: 8rpx; // 单位和价格之间的间距
-                  color: $color-text-secondary;
-                }
-              }
-            }
-
-            /* 普通文本内容 */
-            .value {
-              padding-left: 24rpx;
-              margin-bottom: 8rpx;
-              color: $color-text;
-
-              &:last-child {
-                margin-bottom: 0;
-              }
-            }
           }
         }
       }

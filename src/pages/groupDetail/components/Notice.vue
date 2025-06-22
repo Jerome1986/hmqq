@@ -11,21 +11,21 @@ defineProps({
       <view class="item">
         <view class="text">
           <text class="iconfont icon-riqi"></text>
-          <text>有效期</text>
+          <text style="font-size: 14px">有效期</text>
         </view>
         <view class="value">{{ validityPeriod }}</view>
       </view>
       <view class="item">
         <view class="text">
           <text class="iconfont icon-a-shijian1"></text>
-          <text>使用时间</text>
+          <text style="font-size: 14px">使用时间</text>
         </view>
         <view class="value">营业时间内可用</view>
       </view>
       <view class="item">
         <view class="text">
           <text class="iconfont icon-a-shiyongguize1"></text>
-          <text>使用规则</text>
+          <text style="font-size: 14px">使用规则</text>
         </view>
         <text class="value">使用规则文案,具体应有商家提供或抓取</text>
       </view>
@@ -61,12 +61,15 @@ defineProps({
 
       /* 标签 */
       .text {
+        display: flex;
+        align-items: center;
         font-size: 28rpx;
         font-weight: 500;
         color: $color-title;
 
         .iconfont {
           margin-right: 8rpx;
+          font-size: 32rpx;
         }
       }
 
