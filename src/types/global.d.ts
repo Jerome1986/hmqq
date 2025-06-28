@@ -77,3 +77,14 @@ export type ExpertJoinResult = {
   /** 用户申请的状态 */
   isExpert: string
 }
+
+/**
+ * 通用更新结果类型
+ */
+
+export type updateResult = {
+  /** 是否更新成功 */
+  acknowledged: boolean
+  /** 匹配条数 */
+  matchedCount: number
+}

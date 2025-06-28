@@ -1,29 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useMemberStore } from '@/stores'
-import type { UserInfoItem } from '@/types/userInfo'
-
+import { testUserInfo } from './testConfig'
 // 定义用户store
 const menberStore = useMemberStore()
 
-/**
- * 构建测试登录默认信息
- * 正式登录时，从服务器获取
- */
-const userInfo = ref<UserInfoItem>()
+// 测试登录
+const test = ref(true)
 
 // 点击登录
 const login = () => {
-  console.log('登录')
-  uni.navigateTo({
-    url: '/pages/login/login',
-  })
+  if (test.value) {
+    menberStore.setProfile(testUserInfo)
+  } else {
+    uni.navigateTo({
+      url: '/pages/login/login',
+    })
+  }
 }
 
 // 退出登录
 const handleLogout = () => {
   menberStore.clearProfile()
-  console.log(menberStore.profile)
 }
 
 // 获取弹窗组件
@@ -124,6 +122,10 @@ const handleExpertJoin = () => {
     url: '/subPackages/expertJoin/expertJoin',
   })
 }
+
+onMounted(() => {
+  menberStore.userInfoGet(menberStore.profile._id)
+})
 </script>
 
 <template>
@@ -174,16 +176,16 @@ const handleExpertJoin = () => {
 
     <!-- 钱包区域 -->
     <view class="wallet-section">
-      <view class="title">钱包</view>
+      <view class="title">账单</view>
       <view class="wallet-content">
         <view class="left">
           <view class="amount">
             <text class="symbol">¥</text>
             <text class="number">0.00</text>
           </view>
-          <text class="desc">佣金</text>
+          <text class="desc">余额</text>
         </view>
-        <view class="withdraw-btn">申请</view>
+        <view class="withdraw-btn">查看</view>
       </view>
     </view>
 

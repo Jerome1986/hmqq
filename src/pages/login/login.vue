@@ -2,8 +2,19 @@
 // Login page component
 
 import { APPID, CODE, REDIRECT_URL, SCOPE } from '@/pages/login/wxConfig'
+import { onLoad } from '@dcloudio/uni-app'
+
+// 页面加载时获取参数
+onLoad((query?: AnyObject) => {
+  if (query?.groupId) {
+    // 将完整的重定向路径存储到本地
+    const redirectTo = `/pages/groupDetail/groupDetail?id=${query.groupId}`
+    uni.setStorageSync('redirectUrl', redirectTo)
+  }
+})
 
 const login = () => {
+  // 保存当前页面路径到本地存储，用于登录成功后重定向
   window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${APPID}&redirect_uri=${REDIRECT_URL}&response_type=${CODE}&scope=${SCOPE}#wechat_redirect`
 }
 </script>

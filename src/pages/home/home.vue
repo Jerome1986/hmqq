@@ -44,13 +44,31 @@ const loginByWx = async () => {
     const res = await loginApi(code)
     console.log(res)
     if (res.code === 200) {
-      uni.showToast({
-        icon: 'success',
-        title: '登录成功',
-      })
-
       // 登录成功，更新用户store
       memberStore.setProfile(res.data)
+
+      // 获取存储的重定向地址
+      const redirectUrl = uni.getStorageSync('redirectUrl')
+
+      if (redirectUrl) {
+        // 清除存储的重定向地址
+        uni.removeStorageSync('redirectUrl')
+        // 跳转到之前的页面
+        uni.redirectTo({
+          url: redirectUrl,
+          success: () => {
+            uni.showToast({
+              icon: 'success',
+              title: '登录成功',
+            })
+          },
+        })
+      } else {
+        uni.showToast({
+          icon: 'success',
+          title: '登录成功',
+        })
+      }
     }
   }
 }

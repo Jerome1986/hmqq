@@ -8,6 +8,7 @@ import type { AvailableStores } from '@/types/ShopInfo.ts'
 import Notice from '@/pages/groupDetail/components/Notice.vue'
 import GroupInfo from '@/pages/groupDetail/components/GroupInfo.vue'
 import ShopCard from '@/components/ShopCard.vue'
+import { updateUserMobileApi } from '@/api/userInfo.ts'
 
 const props = defineProps({
   id: {
@@ -19,6 +20,9 @@ const props = defineProps({
 // 使用 store
 const memberStore = useMemberStore()
 const loveStore = useLoveStore()
+
+// 弹窗组件
+const popup = ref()
 
 // 获取团购数据
 const groupData = ref<GroupBuyItem>()
@@ -72,6 +76,53 @@ const handleShopList = () => {
   uni.navigateTo({
     url: `/pages/shopList/shopList?groupId=${groupData.value?._id}`,
   })
+}
+
+// 处理团购
+const handleBuy = () => {
+  // 1.如果没有登录提示用户登录
+  if (!memberStore.profile.isLogin) {
+    uni.showModal({
+      title: '提示',
+      content: '下单前请先登录',
+      confirmColor: '#fb5383',
+      success: (res) => {
+        if (res.confirm) {
+          uni.navigateTo({
+            url: `/pages/login/login?groupId=${groupData.value?._id}`,
+          })
+        }
+      },
+    })
+    return
+  }
+  // 2.如果用户未填写手机号码提示填写手机号码
+  if (!memberStore.profile.mobile) {
+    popup.value.open()
+  }
+  // 3.提交订单到确认订单页面
+  uni.navigateTo({
+    url: `/pages/confirmOrder/confirmOrder?groupId=${groupData.value?._id}`,
+  })
+}
+
+// 处理保存手机号码
+const userMobile = ref('')
+const savePhoneNumber = async () => {
+  console.log(userMobile.value)
+  // todo 更新用户手机号码 -- 同步store -- 操作完毕关闭弹窗
+  const updateRes = await updateUserMobileApi(memberStore.profile._id, userMobile.value)
+  if (updateRes.code === 200) {
+    memberStore.setProfile({ mobile: userMobile.value })
+    popup.value.close()
+    // 后期可直接跳转订单页，增强用户体验
+    setTimeout(() => {
+      uni.showToast({
+        icon: 'success',
+        title: '请继续购物',
+      })
+    }, 800)
+  }
 }
 
 // 组件挂载时初始化数据
@@ -206,8 +257,24 @@ onMounted(async () => {
 
     <!-- 底部按钮 -->
     <view class="footer">
-      <button class="buyBtn">立即团购</button>
+      <button class="buyBtn" @tap="handleBuy">立即团购</button>
     </view>
+
+    <!--  弹窗  -->
+    <uni-popup ref="popup" type="center" border-radius="10px 10px 0 0">
+      <view class="popup">
+        <view class="container">
+          <view class="title">请完善手机号码</view>
+          <view class="content"
+            >为保障您的使用体验，请填写有效手机号码，我们会严格保护您的信息安全～</view
+          >
+          <view class="intPone">
+            <input class="input" v-model="userMobile" placeholder="请输入您的手机号" />
+          </view>
+        </view>
+        <view class="btn" @tap.stop="savePhoneNumber"> 提交保存 </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
@@ -477,6 +544,65 @@ onMounted(async () => {
       color: #fff;
       font-size: 32rpx;
       font-weight: 500;
+    }
+  }
+
+  /*弹窗*/
+  .uni-popup {
+    .popup {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48rpx;
+      width: 596rpx;
+      height: 564rpx;
+      background-color: #ffffff;
+      border-radius: 32rpx;
+      font-size: 28rpx;
+
+      /*文本区域*/
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32rpx;
+        .title {
+          font-size: 32rpx;
+          font-weight: 600;
+          color: $color-title;
+        }
+        .content {
+          color: $color-text;
+        }
+
+        /*输入框*/
+        .intPone {
+          width: 100%;
+          .input {
+            padding: 32rpx 24rpx;
+            height: 108rpx;
+            border-radius: 16rpx;
+            background-color: #f1f2f3;
+            font-size: 28rpx;
+            color: $color-title;
+            .uni-input-placeholder {
+              color: $color-text-secondary;
+            }
+          }
+        }
+      }
+
+      /*提交按钮*/
+      .btn {
+        margin-top: 32rpx;
+        text-align: center;
+        height: 96rpx;
+        line-height: 96rpx;
+        background: linear-gradient(to right, #f6759b 0%, #e65478 100%);
+        color: #ffffff;
+        font-size: 28rpx;
+        border-radius: 48rpx;
+      }
     }
   }
 }

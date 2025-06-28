@@ -80,6 +80,14 @@
         "navigationStyle": "custom",
         "enablePullDownRefresh": false
       }
+    },
+    {
+      "path": "pages/confirmOrder/confirmOrder",
+      "style": {
+        "navigationBarTitleText": "确认订单",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "subPackages": [
