@@ -42,6 +42,6 @@ export const updateUserMobileApi = (user_id: string, mobile: string) => {
   return request<updateResult>({
     method: 'POST',
     url: '/user-updateMobile',
-    data: { user_id },
+    data: { user_id, mobile },
   })
 }

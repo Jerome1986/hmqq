@@ -27,6 +27,7 @@ export const useMemberStore = defineStore(
       if (user_id) {
         const res = await userInfoGetApi(user_id)
         profile.value = res.data
+        profile.value.isLogin = true
       }
     }
 

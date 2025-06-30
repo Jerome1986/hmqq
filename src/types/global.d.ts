@@ -88,3 +88,11 @@ export type updateResult = {
   /** 匹配条数 */
   matchedCount: number
 }
+
+/**
+ * deepseek通用结果回复
+ */
+export type DeepSeekResult = {
+  /** 回复内容 */
+  reply: string
+}

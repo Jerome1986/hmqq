@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import type { AiCategoryItem } from '@/types/home'
-import { aiDetailApi } from '@/api/ai.ts'
-import { aiReplyApi, createDialogueApi } from '@/api/coze.ts'
-import type { CozeAnswerContent } from '@/types/coze'
+import { aiChartDeepSeekApi, aiDetailApi } from '@/api/ai.ts'
 import { useMemberStore } from '@/stores'
+import { marked } from 'marked'
 
+// 接收aiId参数
 const props = defineProps({
   id: String,
 })
 
+// 获取当前ai信息
 const aiData = ref<AiCategoryItem>()
 const aiDetailGet = async (ai_id: string) => {
   const res = await aiDetailApi(ai_id)
@@ -29,131 +30,54 @@ interface Message {
 // 消息列表状态管理
 const messagesList = ref<Message[]>([]) // 存储对话消息记录
 const message = ref('') // 当前输入框的消息内容
-const conversation_id = ref('') // 当前会话ID
-const chat_id = ref('') // 当前聊天ID
+const aiInitMessages = ref('你好呀，我是武汉的美食Ai,关于武汉美食的问题都可以问我哟') //Ai初始消息
 const isLoading = ref(false) // 发送消息时的加载状态
 const isInitialLoading = ref(true) // 首次加载对话的状态
 
-// 轮询配置参数
-const POLL_CONFIG = {
-  maxAttempts: 30, // 最大轮询次数
-  interval: 1000, // 轮询间隔时间(ms)
-  timeout: 30000, // 超时时间(ms)
-}
-
-// 获取对话消息
-const dialogueGet = async (conversation_id: string, chat_id: string) => {
-  try {
-    const res = await aiReplyApi(conversation_id, chat_id)
-    const replyList: CozeAnswerContent[] = res.data || []
-
-    // 只获取AI的回复消息，并按时间排序
-    const aiMessages = replyList
-      .filter((item: CozeAnswerContent) => item.role === 'assistant' && item.type === 'answer')
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-
-    // 获取当前已存在的AI消息内容，用于去重
-    const existingContents = messagesList.value
-      .filter((msg) => msg.type === 'ai')
-      .map((msg) => msg.content)
-
-    // 找出新消息并过滤掉重复内容
-    const newMessages = aiMessages.filter((msg) => !existingContents.includes(msg.content))
-
-    // 如果有新消息，一次性添加所有新消息到列表中
-    if (newMessages.length > 0) {
-      const typedMessages: Message[] = newMessages.map((msg) => ({
-        type: 'ai' as const,
-        content: msg.content,
-        status: 'success' as const,
-      }))
-      messagesList.value.push(...typedMessages)
-      return true // 返回true表示有新消息添加
-    }
-
-    return false // 返回false表示没有新消息
-  } catch (error) {
-    console.error('获取对话失败:', error)
-    return false
-  }
-}
-
 // 发送消息处理函数
 const sendMessage = async () => {
-  const content = message.value.trim()
-  if (!content) return
-
-  // 添加用户消息到列表
+  if (!message.value.trim()) {
+    return uni.showToast({
+      icon: 'none',
+      title: '消息不可以为空',
+    })
+  }
+  // 1. 用户消息入列表
   messagesList.value.push({
     type: 'user',
-    content,
+    content: message.value,
     status: 'success',
   })
-
+  const userMsgIndex = messagesList.value.length - 1
+  const sendContent = message.value
   message.value = '' // 清空输入框
-  isLoading.value = true // 显示加载状态
+  isLoading.value = true
 
   try {
-    // 创建新的对话或在现有对话中发送消息
-    const res = await createDialogueApi(memberStore.profile._id, conversation_id.value, content)
-    chat_id.value = res.data.chat_id
-
-    // 轮询获取AI回复
-    let attempts = 0
-    while (attempts < POLL_CONFIG.maxAttempts) {
-      const hasNewMessage = await dialogueGet(conversation_id.value, chat_id.value)
-      if (hasNewMessage) {
-        break // 收到新消息后停止轮询
-      }
-      attempts++
-      await new Promise((resolve) => setTimeout(resolve, POLL_CONFIG.interval))
+    const res = await aiChartDeepSeekApi(memberStore.profile._id, sendContent)
+    if (res.code === 200) {
+      messagesList.value.push({
+        type: 'ai',
+        content: marked.parse(res.data.reply) as string,
+        status: 'success',
+      })
+    } else {
+      // AI回复失败
+      messagesList.value.push({
+        type: 'ai',
+        content: res.message || 'AI未能理解你的问题',
+        status: 'error',
+      })
     }
-  } catch (error: any) {
-    console.error('发送消息失败:', error)
-    uni.showToast({
-      title: error.message || '发送失败',
-      icon: 'error',
+  } catch (e) {
+    console.error(e)
+    messagesList.value.push({
+      type: 'ai',
+      content: '网络异常，请稍后再试',
+      status: 'error',
     })
   } finally {
-    isLoading.value = false // 无论成功失败都关闭加载状态
-  }
-}
-
-// 初始化对话
-const initDialogue = async () => {
-  isInitialLoading.value = true // 显示初始加载状态
-  try {
-    // 创建新的对话
-    const res = await createDialogueApi(memberStore.profile._id, '', '')
-    conversation_id.value = String(res.data.conversation_id || '')
-    chat_id.value = String(res.data.chat_id || '')
-
-    if (conversation_id.value && chat_id.value) {
-      // 首次加载使用特殊的轮询配置
-      let attempts = 0
-      const maxInitialAttempts = 5 // 首次加载的重试次数较少
-      const initialInterval = 2000 // 首次加载的间隔时间较长
-
-      // 轮询获取初始消息
-      while (attempts < maxInitialAttempts) {
-        const hasNewMessage = await dialogueGet(conversation_id.value, chat_id.value)
-        if (hasNewMessage) {
-          break // 收到消息后停止轮询
-        }
-        attempts++
-        if (attempts < maxInitialAttempts) {
-          await new Promise((resolve) => setTimeout(resolve, initialInterval))
-        }
-      }
-    }
-  } catch (error: any) {
-    console.error('初始化对话错误:', error)
-    uni.showToast({
-      title: error.message || '初始化对话失败',
-      icon: 'error',
-    })
-  } finally {
-    isInitialLoading.value = false // 完成初始化后关闭加载状态
+    isLoading.value = false
   }
 }
 
@@ -161,7 +85,13 @@ onMounted(async () => {
   if (props.id) {
     await aiDetailGet(props.id)
   }
-  await initDialogue()
+  // 首次进入，展示AI欢迎语
+  messagesList.value.push({
+    type: 'ai',
+    content: aiInitMessages.value,
+    status: 'success',
+  })
+  isInitialLoading.value = false
 })
 </script>
 
@@ -190,7 +120,6 @@ onMounted(async () => {
           </view>
         </view>
       </template>
-
       <template v-else>
         <view
           v-for="(msg, index) in messagesList"
@@ -198,7 +127,9 @@ onMounted(async () => {
           :id="'msg-' + index"
           :class="['messageItem', msg.type === 'user' ? 'right' : 'left']"
         >
-          <view class="message">{{ msg.content }}</view>
+          <!-- 仅限h5使用--因为v-html原生已经有了，用在view标签会覆盖，所以这里使用div，小程序环境rich-text来代替v-html -->
+          <div class="message" v-if="msg.type === 'ai'" v-html="msg.content"></div>
+          <view class="message" v-else>{{ msg.content }}</view>
         </view>
         <view v-if="isLoading" class="messageItem left">
           <view class="message loading">
@@ -233,7 +164,6 @@ onMounted(async () => {
     </view>
   </view>
 </template>
-
 <style scoped lang="scss">
 .dialogue {
   min-height: 100vh;

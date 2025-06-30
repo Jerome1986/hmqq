@@ -6,7 +6,7 @@ import { testUserInfo } from './testConfig'
 const menberStore = useMemberStore()
 
 // 测试登录
-const test = ref(true)
+const test = ref(false)
 
 // 点击登录
 const login = () => {

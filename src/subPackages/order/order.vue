@@ -77,7 +77,7 @@ const activeIndex = ref(0)
 
 <style scoped lang="scss">
 .orderPage {
-  padding: 0 24rpx;
+  padding: 0 24rpx 120rpx;
   /*订单类型*/
   .headerType {
     display: flex;

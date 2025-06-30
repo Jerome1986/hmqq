@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import Stepper from '@/pages/confirmOrder/components/Stepper.vue'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { groupDetailApi } from '@/api/groupDetail.ts'
+import type { GroupBuyItem } from '@/types/home'
 
 // 获取页面参数
 onLoad((option: any) => {
@@ -11,14 +12,46 @@ onLoad((option: any) => {
 })
 
 // 获取团购详情
+const groupData = ref<GroupBuyItem>()
 const groupGet = async (groupId: string) => {
   const res = await groupDetailApi(groupId)
   console.log(res)
+  groupData.value = res.data
 }
+
+// 团购件数
+const groupNum = ref(1)
+
+// 优惠金额
+const discountAmount = computed<number>(() => {
+  if (groupData.value?._id) {
+    return groupData.value?.originalPrice - groupData.value?.currentPrice || 0
+  }
+  return 0
+})
+
+// 合计金额
+const totalPrice = computed<number>(() => {
+  if (groupData.value?._id) {
+    return groupData.value?.currentPrice * groupNum.value
+  }
+  return 0
+})
+
+// 优惠券金额
+const couponNum = ref(0)
+
+// 总优惠金额
+const totalDiscountAmount = computed<number>(() => {
+  if (discountAmount.value) {
+    return discountAmount.value + couponNum.value
+  }
+  return 0
+})
 
 // 处理步进器数量
 const handleGroupNum = (e: number) => {
-  console.log('handleGroupNum', e)
+  groupNum.value = e
 }
 
 // 处理提交订单
@@ -33,15 +66,15 @@ const submit = () => {
     <view class="confirmOrder_item">
       <!--  封面  -->
       <view class="cover">
-        <image mode="aspectFill"></image>
+        <image :src="groupData?.coverImage" mode="aspectFill"></image>
       </view>
       <!--  信息  -->
       <view class="info">
-        <view class="title">团购标题</view>
-        <view class="useTime">周一到周日可用</view>
+        <view class="title">{{ groupData?.packageName }}</view>
+        <view class="useTime">{{ groupData?.usageInstructions }}</view>
         <view class="dec">免预约 · 随时退 · 过期自动退</view>
         <view class="price">
-          <view class="priceNum">￥16</view>
+          <view class="priceNum">￥{{ groupData?.currentPrice }}</view>
           <!--  步进器  -->
           <Stepper @updateNum="handleGroupNum"></Stepper>
         </view>
@@ -51,8 +84,10 @@ const submit = () => {
     <view class="orderPrice">
       <!--  头部  -->
       <view class="head">
-        <view class="title">商品总价 <text style="color: #9499a0">(共1件)</text></view>
-        <view class="price">￥16</view>
+        <view class="title"
+          >商品总价 <text style="color: #9499a0">(共{{ groupNum }}件)</text></view
+        >
+        <view class="price">￥{{ totalPrice }}</view>
       </view>
       <!--  优惠券  -->
       <view class="content">
@@ -62,7 +97,7 @@ const submit = () => {
             <view class="icon">团</view>
             <view class="txt">团购优惠</view>
           </view>
-          <view class="right">减￥9</view>
+          <view class="right">减￥{{ discountAmount }}</view>
         </view>
         <!--  平台优惠券  -->
         <view class="couponItem">
@@ -70,8 +105,9 @@ const submit = () => {
             <view class="icon">券</view>
             <view class="txt">平台券</view>
           </view>
+          <!-- todo 检查用户是否有优惠券 并计入计算--默认false=暂无可用 -->
           <!--  可用  -->
-          <view class="coupon" v-if="true">
+          <view class="coupon" v-if="false">
             <text>1张可用</text>
             <text class="iconfont icon-you" style="font-size: 14px; color: #9499a0"></text>
           </view>
@@ -84,7 +120,7 @@ const submit = () => {
       <!--  实付款  -->
       <view class="payPrice">
         <view class="text">实付</view>
-        <view class="payNum">￥6</view>
+        <view class="payNum">￥{{ totalPrice }}</view>
       </view>
     </view>
     <!--  底部提交  -->
@@ -94,10 +130,10 @@ const submit = () => {
         <view class="total">
           <text>合计</text>
           <text>￥</text>
-          <text style="font-size: 20px">6</text>
+          <text style="font-size: 20px">{{ totalPrice }}</text>
         </view>
         <!--  总优惠  -->
-        <view class="discounts"> 共1件 总优惠 ￥10 </view>
+        <view class="discounts"> 共{{ groupNum }}件 总优惠 ￥{{ totalDiscountAmount }} </view>
       </view>
       <view class="submitBtn" @tap="submit">提交订单</view>
     </view>
@@ -122,6 +158,11 @@ const submit = () => {
       border-radius: 8rpx;
       overflow: hidden;
       background-color: #d9d9d9;
+
+      image {
+        width: 100%;
+        height: 100%;
+      }
     }
     /*信息*/
     .info {

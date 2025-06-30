@@ -47,5 +47,6 @@ module.exports = {
     '@typescript-eslint/no-redeclare': 'off',
     'no-constant-condition': ['off', { checkLoops: false }],
     'no-dupe-keys': 'off',
+    'vue/no-v-html': 'off',
   },
 }

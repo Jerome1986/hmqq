@@ -99,6 +99,7 @@ const handleBuy = () => {
   // 2.如果用户未填写手机号码提示填写手机号码
   if (!memberStore.profile.mobile) {
     popup.value.open()
+    return
   }
   // 3.提交订单到确认订单页面
   uni.navigateTo({
@@ -107,11 +108,19 @@ const handleBuy = () => {
 }
 
 // 处理保存手机号码
-const userMobile = ref('')
+const userMobile = ref(memberStore.profile.mobile || '')
 const savePhoneNumber = async () => {
   console.log(userMobile.value)
+  // 非空校验
+  if (!userMobile.value) {
+    return uni.showToast({
+      icon: 'none',
+      title: '手机号码不可以为空',
+    })
+  }
   // todo 更新用户手机号码 -- 同步store -- 操作完毕关闭弹窗
   const updateRes = await updateUserMobileApi(memberStore.profile._id, userMobile.value)
+  console.log(updateRes.data)
   if (updateRes.code === 200) {
     memberStore.setProfile({ mobile: userMobile.value })
     popup.value.close()
@@ -122,6 +131,11 @@ const savePhoneNumber = async () => {
         title: '请继续购物',
       })
     }, 800)
+  } else {
+    uni.showToast({
+      icon: 'none',
+      title: '保存失败',
+    })
   }
 }
 
